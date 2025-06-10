@@ -1,0 +1,236 @@
+{% extends "base.html" %}
+
+{% block title %}CyberRakshak AI - Scam Detection Scanner{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Hero Section -->
+    <div class="row mb-5">
+        <div class="col-lg-8 mx-auto text-center">
+            <h1 class="display-4 fw-bold mb-3">
+                <i data-feather="shield-check" class="text-success me-3"></i>
+                <span id="hero-title">CyberRakshak AI</span>
+            </h1>
+            <p class="lead text-muted" id="hero-subtitle">
+                Protect yourself from online scams with AI-powered detection
+            </p>
+        </div>
+    </div>
+
+    <!-- Analysis Tabs -->
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <div class="card border-0 shadow-lg">
+                <div class="card-header bg-dark">
+                    <ul class="nav nav-tabs card-header-tabs" id="analysisTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="text-tab" data-bs-toggle="tab" data-bs-target="#text-panel" type="button">
+                                <i data-feather="type" class="me-2"></i>
+                                <span data-lang-key="text_analysis">Text Analysis</span>
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="image-tab" data-bs-toggle="tab" data-bs-target="#image-panel" type="button">
+                                <i data-feather="image" class="me-2"></i>
+                                <span data-lang-key="image_analysis">Image Analysis</span>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="card-body">
+                    <div class="tab-content" id="analysisTabContent">
+                        <!-- Text Analysis Panel -->
+                        <div class="tab-pane fade show active" id="text-panel" role="tabpanel">
+                            <form id="text-form">
+                                <div class="mb-4">
+                                    <label for="text-input" class="form-label fw-semibold" data-lang-key="paste_message">
+                                        Paste your message here:
+                                    </label>
+                                    <textarea class="form-control" id="text-input" rows="6" 
+                                              placeholder="Copy and paste the suspicious SMS, email, or WhatsApp message here..."
+                                              data-lang-key="text_placeholder"></textarea>
+                                </div>
+                                
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-primary btn-lg" id="analyze-text-btn">
+                                        <i data-feather="search" class="me-2"></i>
+                                        <span data-lang-key="analyze_text">Analyze Text</span>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                        
+                        <!-- Image Analysis Panel -->
+                        <div class="tab-pane fade" id="image-panel" role="tabpanel">
+                            <form id="image-form" enctype="multipart/form-data">
+                                <div class="mb-4">
+                                    <label for="image-input" class="form-label fw-semibold" data-lang-key="upload_screenshot">
+                                        Upload Screenshot:
+                                    </label>
+                                    <div class="upload-area border-2 border-dashed rounded p-5 text-center" id="upload-area">
+                                        <i data-feather="upload-cloud" size="48" class="text-muted mb-3"></i>
+                                        <p class="mb-2" data-lang-key="drag_drop">Drag and drop your image here</p>
+                                        <p class="text-muted small mb-3" data-lang-key="or_click">or click to select file</p>
+                                        <input type="file" class="form-control d-none" id="image-input" 
+                                               accept="image/*" name="file">
+                                        <button type="button" class="btn btn-outline-secondary" 
+                                                onclick="document.getElementById('image-input').click()">
+                                            <i data-feather="folder" class="me-2"></i>
+                                            <span data-lang-key="choose_file">Choose File</span>
+                                        </button>
+                                    </div>
+                                    <div class="form-text" data-lang-key="supported_formats">
+                                        Supported formats: PNG, JPG, JPEG, GIF, BMP, TIFF, WebP
+                                    </div>
+                                </div>
+                                
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-primary btn-lg" id="analyze-image-btn">
+                                        <i data-feather="camera" class="me-2"></i>
+                                        <span data-lang-key="analyze_image">Analyze Image</span>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Section -->
+    <div class="row mt-5" id="results-section" style="display: none;">
+        <div class="col-lg-10 mx-auto">
+            <div class="card border-0 shadow-lg" id="results-card">
+                <div class="card-header d-flex align-items-center">
+                    <i data-feather="activity" class="me-2"></i>
+                    <h5 class="mb-0" data-lang-key="analysis_results">Analysis Results</h5>
+                </div>
+                <div class="card-body" id="results-content">
+                    <!-- Results will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Modal -->
+    <div class="modal fade" id="loadingModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body text-center p-5">
+                    <div class="spinner-border text-primary mb-3" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <h5 data-lang-key="analyzing">Analyzing...</h5>
+                    <p class="text-muted mb-0" data-lang-key="please_wait">Please wait while we check for scams</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Warning Sound -->
+<audio id="warning-sound" preload="auto">
+    <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmEcBSuL1vLMeS0FJHfH8N2QQAoUXrTp66hVFApGn+DyvmEcBSuL1vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmEcBSuL1vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmEcBSuL1vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmEcBSuL1vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmEcBSuL1vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmEcBSuL1vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmEcBSuL1vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmEcBSuL1vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmEcBSuL1vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmEcBSuL1vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmEcBSuL1vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmEcBSuL1vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmEcBSuL1vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmEcBSuL1vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmEcBSuL1vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmEcBSuL1vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmEcBSuL1vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmEcBSuL1vLNeSsFJHfH8N2QQfkARKNxU8HUVdU=" type="audio/wav">
+</audio>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Language translations for JavaScript
+const translations = {
+    en: {
+        hero_title: "CyberRakshak AI",
+        hero_subtitle: "Protect yourself from online scams with AI-powered detection",
+        text_analysis: "Text Analysis",
+        image_analysis: "Image Analysis",
+        paste_message: "Paste your message here:",
+        text_placeholder: "Copy and paste the suspicious SMS, email, or WhatsApp message here...",
+        analyze_text: "Analyze Text",
+        upload_screenshot: "Upload Screenshot:",
+        drag_drop: "Drag and drop your image here",
+        or_click: "or click to select file",
+        choose_file: "Choose File",
+        supported_formats: "Supported formats: PNG, JPG, JPEG, GIF, BMP, TIFF, WebP",
+        analyze_image: "Analyze Image",
+        analysis_results: "Analysis Results",
+        analyzing: "Analyzing...",
+        please_wait: "Please wait while we check for scams",
+        scam_detected: "🚨 SCAM DETECTED!",
+        no_scam_detected: "✅ No Scam Detected",
+        confidence_level: "Confidence Level",
+        scam_type: "Scam Type",
+        extracted_text: "Extracted Text",
+        keywords_found: "Suspicious Keywords Found",
+        link_analysis: "Link Analysis",
+        warning_voice: "Warning! Potential scam detected. Please be very careful.",
+        safe_voice: "Analysis complete. No immediate threats detected."
+    },
+    hi: {
+        hero_title: "साइबर रक्षक एआई",
+        hero_subtitle: "एआई-संचालित डिटेक्शन के साथ ऑनलाइन स्कैम से खुद को बचाएं",
+        text_analysis: "टेक्स्ट विश्लेषण",
+        image_analysis: "इमेज विश्लेषण",
+        paste_message: "अपना संदेश यहाँ पेस्ट करें:",
+        text_placeholder: "संदिग्ध SMS, ईमेल, या व्हाट्सऐप संदेश यहाँ कॉपी और पेस्ट करें...",
+        analyze_text: "टेक्स्ट का विश्लेषण करें",
+        upload_screenshot: "स्क्रीनशॉट अपलोड करें:",
+        drag_drop: "अपनी इमेज यहाँ ड्रैग और ड्रॉप करें",
+        or_click: "या फाइल चुनने के लिए क्लिक करें",
+        choose_file: "फाइल चुनें",
+        supported_formats: "समर्थित प्रारूप: PNG, JPG, JPEG, GIF, BMP, TIFF, WebP",
+        analyze_image: "इमेज का विश्लेषण करें",
+        analysis_results: "विश्लेषण परिणाम",
+        analyzing: "विश्लेषण कर रहे हैं...",
+        please_wait: "कृपया प्रतीक्षा करें जब तक हम स्कैम की जांच करते हैं",
+        scam_detected: "🚨 स्कैम का पता चला!",
+        no_scam_detected: "✅ कोई स्कैम नहीं मिला",
+        confidence_level: "विश्वास स्तर",
+        scam_type: "स्कैम का प्रकार",
+        extracted_text: "निकाला गया टेक्स्ट",
+        keywords_found: "संदिग्ध शब्द मिले",
+        link_analysis: "लिंक विश्लेषण",
+        warning_voice: "चेतावनी! संभावित स्कैम का पता चला। कृपया बहुत सावधान रहें।",
+        safe_voice: "विश्लेषण पूरा। कोई तत्काल खतरा नहीं मिला।"
+    }
+};
+
+// Update page text based on language
+function updatePageText(language) {
+    const lang = translations[language] || translations.en;
+    
+    // Update elements with data-lang-key attributes
+    document.querySelectorAll('[data-lang-key]').forEach(element => {
+        const key = element.getAttribute('data-lang-key');
+        if (lang[key]) {
+            if (element.tagName === 'INPUT' && element.type === 'text') {
+                element.placeholder = lang[key];
+            } else if (element.tagName === 'TEXTAREA') {
+                element.placeholder = lang[key];
+            } else {
+                element.textContent = lang[key];
+            }
+        }
+    });
+    
+    // Update specific elements by ID
+    const heroTitle = document.getElementById('hero-title');
+    const heroSubtitle = document.getElementById('hero-subtitle');
+    
+    if (heroTitle) heroTitle.textContent = lang.hero_title;
+    if (heroSubtitle) heroSubtitle.textContent = lang.hero_subtitle;
+}
+
+// Listen for language changes
+document.addEventListener('languageChanged', function(event) {
+    updatePageText(event.detail.language);
+});
+
+// Initialize page text on load
+document.addEventListener('DOMContentLoaded', function() {
+    const currentLanguage = localStorage.getItem('language') || 'en';
+    updatePageText(currentLanguage);
+});
+</script>
+{% endblock %}

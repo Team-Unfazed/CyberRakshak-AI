@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+
+{% block title %}CyberRakshak AI - Chatbot{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-lg-8 mx-auto text-center">
+            <h1 class="display-5 fw-bold mb-3">
+                <i data-feather="message-circle" class="text-primary me-3"></i>
+                <span id="chatbot-title">Ask CyberRakshak</span>
+            </h1>
+            <p class="lead text-muted" id="chatbot-subtitle">
+                Get instant answers about potential scams and online safety
+            </p>
+        </div>
+    </div>
+
+    <!-- Chat Interface -->
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card border-0 shadow-lg chatbot-card">
+                <!-- Chat Header -->
+                <div class="card-header bg-primary text-white d-flex align-items-center">
+                    <i data-feather="bot" class="me-2"></i>
+                    <div>
+                        <h6 class="mb-0" data-lang-key="chatbot_name">CyberRakshak AI Assistant</h6>
+                        <small class="opacity-75" data-lang-key="chatbot_status">Online • Ready to help</small>
+                    </div>
+                </div>
+                
+                <!-- Chat Messages -->
+                <div class="card-body p-0">
+                    <div class="chat-container" id="chat-container">
+                        <div class="chat-messages" id="chat-messages">
+                            <!-- Welcome message -->
+                            <div class="message bot-message">
+                                <div class="message-avatar">
+                                    <i data-feather="shield" class="text-primary"></i>
+                                </div>
+                                <div class="message-content">
+                                    <div class="message-bubble bg-light">
+                                        <p class="mb-0" id="welcome-message">
+                                            Hello! I'm CyberRakshak AI. I can help you identify scams and stay safe online. 
+                                            Share any suspicious message or ask me about potential fraud.
+                                        </p>
+                                    </div>
+                                    <small class="text-muted message-time">Just now</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Chat Input -->
+                <div class="card-footer bg-light">
+                    <form id="chat-form" class="d-flex gap-2">
+                        <div class="flex-grow-1">
+                            <input type="text" class="form-control" id="chat-input" 
+                                   placeholder="Type your message or paste suspicious text..."
+                                   data-lang-key="chat_placeholder" autocomplete="off">
+                        </div>
+                        <button type="submit" class="btn btn-primary" id="send-button">
+                            <i data-feather="send" size="16"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mt-4">
+        <div class="col-lg-8 mx-auto">
+            <div class="card border-0">
+                <div class="card-body">
+                    <h6 class="card-title mb-3" data-lang-key="quick_questions">Quick Questions:</h6>
+                    <div class="d-flex flex-wrap gap-2">
+                        <button class="btn btn-outline-secondary btn-sm quick-question" 
+                                data-question="Is this message a scam?" data-lang-key="quick_scam_check">
+                            Is this message a scam?
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm quick-question" 
+                                data-question="How to identify UPI fraud?" data-lang-key="quick_upi_help">
+                            How to identify UPI fraud?
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm quick-question" 
+                                data-question="What are phishing scams?" data-lang-key="quick_phishing_help">
+                            What are phishing scams?
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm quick-question" 
+                                data-question="How to spot job scams?" data-lang-key="quick_job_help">
+                            How to spot job scams?
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Typing Indicator Template -->
+<div id="typing-template" class="message bot-message typing-indicator" style="display: none;">
+    <div class="message-avatar">
+        <i data-feather="shield" class="text-primary"></i>
+    </div>
+    <div class="message-content">
+        <div class="message-bubble bg-light">
+            <div class="typing-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/chatbot.js') }}"></script>
+<script>
+// Language translations for chatbot
+const chatbotTranslations = {
+    en: {
+        chatbot_title: "Ask CyberRakshak",
+        chatbot_subtitle: "Get instant answers about potential scams and online safety",
+        chatbot_name: "CyberRakshak AI Assistant",
+        chatbot_status: "Online • Ready to help",
+        welcome_message: "Hello! I'm CyberRakshak AI. I can help you identify scams and stay safe online. Share any suspicious message or ask me about potential fraud.",
+        chat_placeholder: "Type your message or paste suspicious text...",
+        quick_questions: "Quick Questions:",
+        quick_scam_check: "Is this message a scam?",
+        quick_upi_help: "How to identify UPI fraud?",  
+        quick_phishing_help: "What are phishing scams?",
+        quick_job_help: "How to spot job scams?",
+        you: "You",
+        bot: "CyberRakshak AI"
+    },
+    hi: {
+        chatbot_title: "साइबर रक्षक से पूछें",
+        chatbot_subtitle: "संभावित स्कैम और ऑनलाइन सुरक्षा के बारे में तुरंत उत्तर पाएं",
+        chatbot_name: "साइबर रक्षक एआई असिस्टेंट",
+        chatbot_status: "ऑनलाइन • मदद के लिए तैयार",
+        welcome_message: "नमस्ते! मैं साइबर रक्षक एआई हूं। मैं आपको स्कैम की पहचान करने और ऑनलाइन सुरक्षित रहने में मदद कर सकता हूं। कोई भी संदिग्ध संदेश साझा करें या मुझसे संभावित धोखाधड़ी के बारे में पूछें।",
+        chat_placeholder: "अपना संदेश टाइप करें या संदिग्ध टेक्स्ट पेस्ट करें...",
+        quick_questions: "त्वरित प्रश्न:",
+        quick_scam_check: "क्या यह संदेश स्कैम है?",
+        quick_upi_help: "UPI धोखाधड़ी की पहचान कैसे करें?",
+        quick_phishing_help: "फिशिंग स्कैम क्या हैं?",
+        quick_job_help: "नौकरी स्कैम कैसे पहचानें?",
+        you: "आप",
+        bot: "साइबर रक्षक एआई"
+    }
+};
+
+// Update chatbot text based on language
+function updateChatbotText(language) {
+    const lang = chatbotTranslations[language] || chatbotTranslations.en;
+    
+    // Update elements with data-lang-key attributes
+    document.querySelectorAll('[data-lang-key]').forEach(element => {
+        const key = element.getAttribute('data-lang-key');
+        if (lang[key]) {
+            if (element.tagName === 'INPUT') {
+                element.placeholder = lang[key];
+            } else {
+                element.textContent = lang[key];
+            }
+        }
+    });
+    
+    // Update specific elements
+    const chatbotTitle = document.getElementById('chatbot-title');
+    const chatbotSubtitle = document.getElementById('chatbot-subtitle');
+    const welcomeMessage = document.getElementById('welcome-message');
+    
+    if (chatbotTitle) chatbotTitle.textContent = lang.chatbot_title;
+    if (chatbotSubtitle) chatbotSubtitle.textContent = lang.chatbot_subtitle;
+    if (welcomeMessage) welcomeMessage.textContent = lang.welcome_message;
+    
+    // Update quick question buttons
+    document.querySelectorAll('.quick-question').forEach(button => {
+        const key = button.getAttribute('data-lang-key');
+        if (lang[key]) {
+            button.textContent = lang[key];
+        }
+    });
+}
+
+// Listen for language changes
+document.addEventListener('languageChanged', function(event) {
+    updateChatbotText(event.detail.language);
+    // Update chatbot instance language if it exists
+    if (window.chatbot) {
+        window.chatbot.setLanguage(event.detail.language);
+    }
+});
+
+// Initialize chatbot text on load
+document.addEventListener('DOMContentLoaded', function() {
+    const currentLanguage = localStorage.getItem('language') || 'en';
+    updateChatbotText(currentLanguage);
+});
+</script>
+{% endblock %}
